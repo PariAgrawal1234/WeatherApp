@@ -6,6 +6,9 @@ plugins {
 android {
     namespace = "com.example.weatherapp"
     compileSdk = 35
+    buildFeatures{
+        viewBinding = true
+    }
 
     defaultConfig {
         applicationId = "com.example.weatherapp"
@@ -48,6 +51,6 @@ dependencies {
 
     //lottie animation
     implementation(libs.lottie)
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.retrofit2:retrofit:3.0.0")
+    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
 }

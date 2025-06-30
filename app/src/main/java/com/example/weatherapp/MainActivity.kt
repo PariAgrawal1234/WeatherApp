@@ -17,6 +17,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import android.widget.SearchView
+import java.util.concurrent.locks.Condition
 
 class MainActivity : AppCompatActivity() {
     private val binding: ActivityMainBinding by lazy {
@@ -66,8 +67,8 @@ class MainActivity : AppCompatActivity() {
                     val temperature = responseBody.main.temp.toString()
                     val humidity = responseBody.main.humidity.toString()
                     val windspeed = responseBody.wind.speed.toString()
-                    val sunrise = responseBody.sys.sunrise.toString()
-                    val sunset = responseBody.sys.sunset.toString()
+                    val sunrise = responseBody.sys.sunrise.toLong()
+                    val sunset = responseBody.sys.sunset.toLong()
                     val sealevel = responseBody.main.sea_level.toString()
                     val condition = responseBody.weather.firstOrNull()?.main?:"unknown"
                     val maxtemp = responseBody.main.temp_max
@@ -79,15 +80,15 @@ class MainActivity : AppCompatActivity() {
                     binding.MaxTemp.text = "$maxtemp°C"
                     binding.attributeCondtn.text = condition
                     binding.MinTemp.text = "$mintemp°C"
-                    binding.sunrise.text = sunrise
-                    binding.sunset.text = sunset
+                    binding.sunrise.text = time(sunrise)
+                    binding.sunset.text = time(sunset)
                     binding.sealevel.text = "$sealevel hPa"
                     binding.Humidity.text = "$humidity %"
                     binding.Temperature.text = temperature
                     binding.Day.text = dayName(System.currentTimeMillis())
                     binding.Date.text = date()
                     //Log.d("TAG", "onResponse : $temperature")
-                    ChangeImage()
+                    ChangeImage(condition)
                 }
             }
 
@@ -98,13 +99,40 @@ class MainActivity : AppCompatActivity() {
         })
 }
 
-    private fun ChangeImage() {
-
+    private fun ChangeImage(Conditions : String) {
+        when (Conditions){
+            "Clouds", "Haze", "Partly Clouds", "Overcast", "mist", "Foggy" -> {
+                binding.root.setBackgroundResource(R.drawable.colud_background)
+                binding.lottieAnimationView.setAnimation(R.raw.cloud)
+            }
+             "Rain", "Light Rain", "Heavy Rain", "Moderate Rain", "Showers", "Drizzle", "Showers" -> {
+                binding.root.setBackgroundResource(R.drawable.rain_background)
+                binding.lottieAnimationView.setAnimation(R.raw.rain)
+            }
+            "Clear", "Sunny", "Clear Sky" ->{
+                binding.root.setBackgroundResource(R.drawable.sunny_background)
+                binding.lottieAnimationView.setAnimation(R.raw.sun)
+            }
+            "Snow", "Light Snow", "Moderate Snow", "Heavy Snow", "Blizzard" -> {
+                binding.root.setBackgroundResource(R.drawable.snow_background)
+                binding.lottieAnimationView.setAnimation(R.raw.snow)
+            }
+            else ->{
+                binding.root.setBackgroundResource(R.drawable.sunny_background)
+                binding.lottieAnimationView.setAnimation(R.raw.sun)
+            }
+        }
+        binding.lottieAnimationView.playAnimation()
     }
 
     private fun date(): String {
         val sdf = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
         return sdf.format((Date()))
+    }
+
+    private fun time(timestamp :Long): String {
+        val sdf = SimpleDateFormat("HH:MM", Locale.getDefault())
+        return sdf.format((Date(timestamp*1000)))
     }
 
     fun dayName(timestamp :Long):String{
